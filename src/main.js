@@ -12,7 +12,11 @@ Apify.main(async () => {
 
     const proxyConfig = await Apify.createProxyConfiguration(proxyConfiguration);
 
-    const requestList = await Apify.openRequestList('start-urls', startUrls);
+    let startingUrls = [];
+    if (startUrls) {
+        startingUrls = startUrls;
+    }
+    const requestList = await Apify.openRequestList('start-urls', startingUrls);
     const requestQueue = await Apify.openRequestQueue();
     if (hashtags) {
         for (const hashtag of hashtags) {
