@@ -5,21 +5,21 @@ const { utils: { log } } = Apify;
 
 Apify.main(async () => {
     // TODO: maxItems, extendedOutputFunction
-    const { startUrls, searchTerms, proxyConfiguration } = await Apify.getInput();
-    if (!startUrls || !searchTerms) {
-        throw new Error('Input must contain startUrl or searchTerm.');
+    const { startUrls, hashtags, proxyConfiguration } = await Apify.getInput();
+    if (!startUrls || !hashtags) {
+        throw new Error('Input must contain startUrl or hashtag.');
     }
 
     const proxyConfig = await Apify.createProxyConfiguration(proxyConfiguration);
 
     const requestList = await Apify.openRequestList('start-urls', startUrls);
     const requestQueue = await Apify.openRequestQueue();
-    if (searchTerms) {
-        for (const searchTerm of searchTerms) {
-            // remove all white spaces from searchTerm
-            searchTerm.replaceAll(/\s/g, '');
+    if (hashtags) {
+        for (const hashtag of hashtags) {
+            // remove all white spaces from hashtag
+            hashtag.replaceAll(/\s/g, '');
             await requestQueue.addRequest({
-                url: `https://www.tiktok.com/tag/${searchTerm}`,
+                url: `https://www.tiktok.com/tag/${hashtag}`,
             });
         }
     }
