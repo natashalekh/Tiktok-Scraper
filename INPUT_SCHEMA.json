@@ -1,18 +1,22 @@
 {
-    "title": "Example input schema",
+    "title": "Input schema for Tiktok scraper",
+    "description": "Get data from the first page for Tik-tok hashtag search",
     "type": "object",
     "schemaVersion": 1,
     "properties": {
+        "searchTerms": {
+            "title": "Hashtags to scrape",
+            "type": "array",
+            "editor": "stringList",
+            "description": "Video tag search terms.",
+            "prefill": ["amazing"]
+        },
         "startURLs": {
             "title": "Start URLs",
             "type": "array",
             "editor": "requestListSources",
-            "description": "List of URLs that will be scraped or crawled. Can be a tag or channel/user url. No support for search urls."
-        },
-        "searchTerms": {
-            "title": "Search terms",
-            "type": "array",
-            "description": "Video tag search terms."
+            "description": "List of URLs that will be scraped or crawled. Can be a tag or channel/user url. No support for search urls.",
+            "sectionCaption": "Start URLs"
         },
         "proxyConfiguration": {
             "title": "Proxy configuration",
@@ -21,7 +25,8 @@
             "description": "The best option is usually Automatic proxy. But you can also use your own proxies or no proxy",
             "prefill": {
                 "useApifyProxy": true
-            }
+            },
+            "sectionCaption": "Proxy configuration"
         }
     }
 }
