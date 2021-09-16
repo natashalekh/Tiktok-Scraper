@@ -6,7 +6,7 @@ const { utils: { log } } = Apify;
 Apify.main(async () => {
     // TODO: maxItems, extendedOutputFunction
     const { startUrls, hashtags, proxyConfiguration } = await Apify.getInput();
-    if (!startUrls || !hashtags) {
+    if (!startUrls && !hashtags) {
         throw new Error('Input must contain startUrl or hashtag.');
     }
 
