@@ -7,7 +7,7 @@ It allows you to extract detailed information about videos and users/channels th
 It is build on top of [Apify SDK](https://sdk.apify.com/) and you can run it both on [Apify platform](https://my.apify.com) and locally.
 
 
-This minimal version currently scrapes all urls and hashtags provided on input with only 36 videos on output for each of them.
+This minimal version currently scrapes from all urls and hashtags provided on input the first batch of loaded videos, usually 36, but can be less.
 
 - [Output](#output)
 
