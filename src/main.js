@@ -1,16 +1,20 @@
 const Apify = require('apify');
 const { handleList, handleVideo, handleUser } = require('./routes');
+const { proxyConfiguration } = require('./proxyValidation');
 
 const { utils: { log } } = Apify;
 
 Apify.main(async () => {
     // TODO: maxItems, extendedOutputFunction
-    const { startURLs, hashtags, proxyConfiguration } = await Apify.getInput();
+    const input = await Apify.getInput();
+    const { startURLs, hashtags } = input;
     if (!startURLs && !hashtags) {
         throw new Error('Input must contain startURL or hashtag.');
     }
 
-    const proxyConfig = await Apify.createProxyConfiguration(proxyConfiguration);
+    const proxyConfig = await proxyConfiguration({
+        proxyConfig: input.proxyConfiguration,
+    });
 
     let startingUrls = [];
     if (startURLs) {
