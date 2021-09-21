@@ -2,12 +2,12 @@ const Apify = require('apify');
 
 const { utils: { log } } = Apify;
 
-exports.handleList = async ({ request, page }, requestQueue) => {
+exports.handleList = async ({ request, page }, requestQueue, maxResultsPerPage) => {
     // 6 is the initial number of loaded videos, actually after a while there are 36 videos loaded and
     // this continues with the scroll event - not implemented yet
     await page.waitForFunction('document.querySelectorAll("main .video-feed-item").length > 6');
     // video-feed list
-    const videoUrls = await page.evaluate(() => {
+    let videoUrls = await page.evaluate(() => {
         const result = [];
         [...document.querySelectorAll('main .video-feed-item')].map((video) => {
             result.push(video.querySelector('a')?.getAttribute('href'));
@@ -15,6 +15,10 @@ exports.handleList = async ({ request, page }, requestQueue) => {
         return result;
     });
     log.info(`[SEARCH VIDEOS]: Found ${videoUrls.length} videos.`)
+    if (maxResultsPerPage !== undefined && maxResultsPerPage !== 0) {
+        videoUrls = videoUrls.splice(0, maxResultsPerPage);
+    }
+    log.info(`[SEARCH VIDEOS]: Adding ${videoUrls.length} videos to queue.`)
 
     if (request.url.includes('tag')) {
         // hashtag url
