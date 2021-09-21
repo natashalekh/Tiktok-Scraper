@@ -5,16 +5,16 @@ const { utils: { log } } = Apify;
 
 Apify.main(async () => {
     // TODO: maxItems, extendedOutputFunction
-    const { startUrls, hashtags, proxyConfiguration } = await Apify.getInput();
-    if (!startUrls && !hashtags) {
-        throw new Error('Input must contain startUrl or hashtag.');
+    const { startURLs, hashtags, proxyConfiguration } = await Apify.getInput();
+    if (!startURLs && !hashtags) {
+        throw new Error('Input must contain startURL or hashtag.');
     }
 
     const proxyConfig = await Apify.createProxyConfiguration(proxyConfiguration);
 
     let startingUrls = [];
-    if (startUrls) {
-        startingUrls = startUrls;
+    if (startURLs) {
+        startingUrls = startURLs;
     }
     const requestList = await Apify.openRequestList('start-urls', startingUrls);
     const requestQueue = await Apify.openRequestQueue();
