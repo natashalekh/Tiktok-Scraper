@@ -28,5 +28,6 @@
             },
             "sectionCaption": "Proxy configuration"
         }
-    }
+    },
+    "required": ["proxyConfiguration"]
 }
