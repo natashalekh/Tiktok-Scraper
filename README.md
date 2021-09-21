@@ -5,7 +5,9 @@
 TikTok Scraper is an [Apify actor](https://apify.com/actors) for extracting data about videos from social media site [TikTok](https://www.tiktok.com/).
 It allows you to extract detailed information about videos and users/channels that posted them.
 It is build on top of [Apify SDK](https://sdk.apify.com/) and you can run it both on [Apify platform](https://my.apify.com) and locally.
-This minimal version can only scrape 36 videos from every provided url.
+
+
+This minimal version currently scrapes all urls and hashtags provided on input with only 36 videos on output for each of them.
 
 - [Output](#output)
 
