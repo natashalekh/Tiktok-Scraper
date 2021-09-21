@@ -7,16 +7,7 @@ It allows you to extract detailed information about videos and users/channels th
 It is build on top of [Apify SDK](https://sdk.apify.com/) and you can run it both on [Apify platform](https://my.apify.com) and locally.
 This minimal version can only scrape 36 videos from every provided url.
 
-- [Input](#input)
 - [Output](#output)
-
-### Input
-
-| Field | Type | Description | Default value
-| ----- | ---- | ----------- | -------------|
-| startUrls | array | List of [Request](https://sdk.apify.com/docs/api/request#docsNav) objects that will be deeply crawled. The URL can be user/channel profile like `https://www.tiktok.com/@kiki.tiel` or hashtag url like `https://www.tiktok.com/tag/cockatiel`| `[]`|
-| hashtags | array | List of strings that will be constructed into hashtag url and crawled. | `["amazing"]`|
-| proxyConfiguration | object | Proxy settings of the run. If you have access to Apify proxy, leave the default settings. If not, you can set `{ "useApifyProxy": false" }` to disable proxy usage | `{ "useApifyProxy": true }`|
 
 ### Output
 
