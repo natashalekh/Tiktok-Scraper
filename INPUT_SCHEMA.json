@@ -1,33 +1,37 @@
 {
-    "title": "Input schema for Tiktok scraper",
-    "description": "Get data from the first page for Tik-tok hashtag search",
-    "type": "object",
-    "schemaVersion": 1,
-    "properties": {
-        "hashtags": {
-            "title": "Hashtags to scrape",
-            "type": "array",
-            "editor": "stringList",
-            "description": "Video tag search terms.",
-            "prefill": ["amazing"]
-        },
-        "startURLs": {
-            "title": "Start URLs",
-            "type": "array",
-            "editor": "requestListSources",
-            "description": "List of URLs that will be scraped or crawled. Can be a tag or channel/user url. No support for search urls.",
-            "sectionCaption": "Start URLs"
-        },
-        "proxyConfiguration": {
-            "title": "Proxy configuration",
-            "type": "object",
-            "editor": "proxy",
-            "description": "The best option is usually Automatic proxy. But you can also use your own proxies.",
-            "prefill": {
-                "useApifyProxy": true
-            },
-            "sectionCaption": "Proxy configuration"
-        }
-    },
-    "required": ["proxyConfiguration"]
+"title": "Input schema for TikTok scraper",
+"description": "Scrapes the first page of results from TikTok hashtag search.",
+"type": "object",
+"schemaVersion": 1,
+"properties": {
+"hashtags": {
+"title": "What TikTok hashtags do you want to scrape?",
+"type": "array",
+"editor": "stringList",
+"description": "Just add TikTok hashtags and the scraper will collect information about users, followers, likes, and more.",
+"prefill": [
+"followforfollowback"
+]
+},
+"startURLs": {
+"title": "What URLs do you want to scrape?",
+"type": "array",
+"editor": "requestListSources",
+"description": "Add the URL you want to scrape. You can enter URLs one by one, or you can upload or link to a text file. The URL must be a tag, channel, or user URL. TikTok Scraper currently doesn't support search URLs.",
+"sectionCaption": "Start URLs"
+},
+"proxyConfiguration": {
+"title": "Set up your proxy configuration",
+"type": "object",
+"editor": "proxy",
+"description": "Automatic proxy and the country of your choice is usually the best option, but you can also select specific proxies, or use your own custom proxies.",
+"prefill": {
+"useApifyProxy": true
+},
+"sectionCaption": "Proxy configuration"
+}
+},
+"required": [
+"proxyConfiguration"
+]
 }
