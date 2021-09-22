@@ -1,19 +1,20 @@
-(This actor is a first and minimal version. It will be soon upgraded with better functionality.)
+## Features
+Our free TikTok Scraper lets you extract data about videos from the [TikTok](https://www.tiktok.com/) social media site. It scrapes the first page of results from TikTok hashtag search and gives you detailed TikTok information in structured formats such as Excel, XML, JSON, and CSV that you can use in your own reports, spreadsheets, and applications.
 
-### TikTok Scraper
+## Why use TikTok Scraper?
+TikTok Scraper creates an unofficial TikTok API. TikTok now has an [estimated one billion users](https://wallaroomedia.com/blog/social-media/tiktok-statistics/) and many of those users spend as much as 80 minutes per day on the app.
 
-TikTok Scraper is an [Apify actor](https://apify.com/actors) for extracting data about videos from social media site [TikTok](https://www.tiktok.com/).
-It allows you to extract detailed information about videos and users/channels that posted them.
-It is build on top of [Apify SDK](https://sdk.apify.com/) and you can run it both on [Apify platform](https://my.apify.com) and locally.
+With a TikTok API, you can build your own products and applications on top of the TikTok platform.
 
+TikTok Scraper currently only scrapes information based on hashtags, but we will be adding more functionality, so please [contact us](mailto:support@apify.com) if you want to suggest anything!
 
-This minimal version currently scrapes from all urls and hashtags provided on input the first batch of loaded videos, usually 36, but can be less.
+## Cost of usage
+If you run TikTok Scraper on the Apify platform, a single run of the actor will usually cost approximately $0.08 and you'll get about 36 results. On average, you can extract about 1,000 results for less than $2.50.
 
-- [Output](#output)
+The best way to find out how many platform credits an actor will consume is to perform a test run. You can then review platform usage in Billing and figure out the best Apify subscription plan for your needs.
 
-### Output
-
-Output is stored in a dataset. Each item is an information about video and user/channel. Example:
+## Output
+The output from TikTok Scraper is stored in a dataset. Each item is information about a video and user or channel. Here's an example of some of the output you would get if you scraped the hashtag "cockatiel":
 
 ```
 {
@@ -86,8 +87,8 @@ Output is stored in a dataset. Each item is an information about video and user/
 }
 ```
 
-### Epilogue
-Thank you for trying first version of this actor.
-I will be very glad for a feedback that you can send to my email `marketa@apify.com`.
-If you find any bug, please create an issue on the [Github page](https://github.com/sauermar/Tiktok-Scraper/issues).
+## Limitations
+TikTok Scraper currently only scrapes the first page of results for TikTok hashtag search, so you will usually get a maximum of 36 results per hashtag. You can scrape more than one hashtag, but each will still return a maximum of 36 results.
 
+## Personal data
+You should be aware that your results might contain personal data. Personal data is protected by GDPR in the European Union and by other regulations around the world. You should not scrape personal data unless you have a legitimate reason to do so. If you're unsure whether your reason is legitimate, consult your lawyers. You can also read our blog post on the [legality of web scraping](https://blog.apify.com/is-web-scraping-legal/).
