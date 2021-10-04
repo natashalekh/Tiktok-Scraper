@@ -20,6 +20,14 @@
 "description": "Add the URL you want to scrape. You can enter URLs one by one, or you can upload or link to a text file. The URL must be a tag, channel, or user URL. TikTok Scraper currently doesn't support search URLs.",
 "sectionCaption": "Start URLs"
 },
+"maxResultsPerPage": {
+"title": "Max results per page",
+"type": "integer",
+"unit": "results",
+"description": "The maximum number of results that will be saved to the resulting dataset. <br><br>If set to <code>0</code>, there is no limit.",
+"minimum": 0,
+"default": 0
+},
 "proxyConfiguration": {
 "title": "Set up your proxy configuration",
 "type": "object",

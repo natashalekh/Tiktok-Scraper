@@ -8,8 +8,9 @@ exports.handleList = async ({ request, page }, requestQueue) => {
     await page.waitForNetworkIdle({
         idleTime: 2000
     });
+
     // video-feed list
-    const videoUrls = await page.evaluate(() => {
+    let videoUrls = await page.evaluate(() => {
         const result = [];
         [...document.querySelectorAll('main .video-feed-item')].map((video) => {
             result.push(video.querySelector('a')?.getAttribute('href'));
@@ -17,6 +18,10 @@ exports.handleList = async ({ request, page }, requestQueue) => {
         return result;
     });
     log.info(`[SEARCH VIDEOS]: Found ${videoUrls.length} videos.`)
+    if (maxResultsPerPage !== undefined && maxResultsPerPage !== 0) {
+        videoUrls = videoUrls.splice(0, maxResultsPerPage);
+    }
+    log.info(`[SEARCH VIDEOS]: Adding ${videoUrls.length} videos to queue.`)
 
     if (request.url.includes('tag')) {
         // hashtag url

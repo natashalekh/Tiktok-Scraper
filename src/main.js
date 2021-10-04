@@ -7,7 +7,7 @@ const { utils: { log } } = Apify;
 Apify.main(async () => {
     // TODO: maxItems, extendedOutputFunction
     const input = await Apify.getInput();
-    const { startURLs, hashtags } = input;
+    const { startURLs, hashtags, maxResultsPerPage } = input;
     if (!startURLs && !hashtags) {
         throw new Error('Input must contain startURL or hashtag.');
     }
@@ -47,6 +47,7 @@ Apify.main(async () => {
         handlePageFunction: async (context) => {
             const { url, userData: { label } } = context.request;
             log.info(`${context.response.status()}|${label}|${url}`);
+
             const title = await context.page.$eval('title', (titl) => titl.innerText.trim());
             if (title.includes('Something went wrong')
                 || title.includes('Robot Check')
@@ -55,17 +56,22 @@ Apify.main(async () => {
                 context.session.retire();
                 throw new Error(`${url} was blocked and needs to retry.`);
             }
+            // If the page is not found do nothing.
+            if (context.response.status() === 404) {
+                log.info(`Stopping with not found --- ${context.response.status()} - ${url}`);
+                return;
+            }
             switch (label) {
                 case 'USER':
                     return handleUser(context, requestQueue);
                 case 'VIDEO':
                     return handleVideo(context);
                 default:
-                    return handleList(context, requestQueue);
+                    return handleList(context, requestQueue, maxResultsPerPage);
             }
         },
         handleFailedRequestFunction: async (context) => {
-            log.error(`Request failed too many times --- ${context.url}`);
+            log.error(`Request failed too many times --- ${context.request.url}`);
         },
     });
 
