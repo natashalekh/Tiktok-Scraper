@@ -7,7 +7,7 @@ const { utils: { log } } = Apify;
 Apify.main(async () => {
     // TODO: maxItems, extendedOutputFunction
     const input = await Apify.getInput();
-    const { startURLs, hashtags } = input;
+    const { startURLs, hashtags, maxResultsPerPage } = input;
     if (!startURLs && !hashtags) {
         throw new Error('Input must contain startURL or hashtag.');
     }
@@ -67,7 +67,7 @@ Apify.main(async () => {
                 case 'VIDEO':
                     return handleVideo(context);
                 default:
-                    return handleList(context, requestQueue);
+                    return handleList(context, requestQueue, maxResultsPerPage);
             }
         },
         handleFailedRequestFunction: async (context) => {
