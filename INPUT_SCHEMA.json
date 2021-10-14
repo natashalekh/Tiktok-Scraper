@@ -42,14 +42,16 @@
     "type": "integer",
     "editor": "number",
     "description": "How many times a page will be retried in case of being blocked or other errors.",
-    "default": 10
+    "default": 10,
+    "sectionCaption": "Request retries"
 },
 "maxConcurrency": {
     "title": "Max Concurrency",
     "type": "integer",
     "description": "Max number of allowed instances running in parallel. More instances need more memory!",
     "editor": "number",
-    "default": 1
+    "default": 1,
+    "sectionCaption": "Concurrency"
 },
 "resultsPerPage": {
     "title": "Max results per page",
@@ -57,7 +59,8 @@
     "unit": "results",
     "description": "The number of results that will be scraped from every hashtag and profile.",
     "minimum": 1,
-    "default": 10
+    "default": 10,
+    "sectionCaption": "Results per page"
 }
 },
 "required": [
