@@ -1,94 +1,110 @@
 ## Features
-Our free TikTok Scraper lets you extract data about videos from the [TikTok](https://www.tiktok.com/) social media site. It scrapes the first page of results from TikTok hashtag search and gives you detailed TikTok information in structured formats such as Excel, XML, JSON, and CSV that you can use in your own reports, spreadsheets, and applications.
+Our free TikTok Scraper lets you extract data about videos from the [TikTok](https://www.tiktok.com/) social media site. It scrapes results from TikTok hashtag search, TikTok user profile or post and gives you detailed TikTok information in structured formats such as Excel, XML, JSON, and CSV that you can use in your own reports, spreadsheets, and applications.
 
 ## Why use TikTok Scraper?
 TikTok Scraper creates an unofficial TikTok API. TikTok now has an [estimated one billion users](https://wallaroomedia.com/blog/social-media/tiktok-statistics/) and many of those users spend as much as 80 minutes per day on the app.
 
 With a TikTok API, you can build your own products and applications on top of the TikTok platform.
 
-TikTok Scraper currently only scrapes information based on hashtags, but we will be adding more functionality, so please [contact us](mailto:support@apify.com) if you want to suggest anything!
+TikTok Scraper currently only scrapes information based on hashtags, user profiles or posts, but we will be adding more functionality, so please [contact us](mailto:support@apify.com) if you want to suggest anything!
 
 ## Cost of usage
+**To be recalculated**
+
 If you run TikTok Scraper on the Apify platform, a single run of the actor will usually cost approximately $0.08 and you'll get about 36 results. On average, you can extract about 1,000 results for less than $2.50.
 
 The best way to find out how many platform credits an actor will consume is to perform a test run. You can then review platform usage in Billing and figure out the best Apify subscription plan for your needs.
 
 ## Output
-The output from TikTok Scraper is stored in a dataset. Each item is information about a video and user or channel. Here's an example of some of the output you would get if you scraped the hashtag "cockatiel":
+The output from TikTok Scraper is stored in a dataset. Each item is information about a video and user or channel. Here's an example of some of the output you would get if you scraped the hashtag "comfortfood":
 
 ```
 {
-  "searchHashtag": "cockatiel",
-  "numberOfViewsOnHashtag": "344M",
-  "userUrl": "https://www.tiktok.com/@calopsitas_mansa",
-  "following": "435",
-  "followers": "317.4K",
-  "userTotalLikes": "4.5M",
-  "userDescription": "Seja bem vindo(a\nAo mundo mágico das Calopsitas\nVe...
-  "userShareLinks": [
-    "bit.ly/Calopsita_mansa"
-  ],
-  "userImageUrl": "https://p77-sign-va.tiktokcdn.com/musically-maliva-obj...
-  "userName": "calopsitas_mansa",
-  "userNickname": "calopsitas_mansa",
-  "uploadDate": "2020-11-3",
-  "caption": "#cockatiels ",
+  "id": "6905590108888747269",
+  "text": "I tried different pickles and it worked! #friedpickles #keto #omad #ketosnack #crunchsounds #asmr #ComfortFood",
+  "createTime": 1607833011,
+  "authorMeta": {
+    "id": "6774507247595815941",
+    "name": "lowcarblove",
+    "nickName": "Mayra Wendolyne",
+    "verified": false,
+    "signature": "Hi I’m Mayra!❤️\nYouTube & IG: lowcarblove\nMy faves👇 Discount code: lowcarblove",
+    "avatar": "https://p16-sign-va.tiktokcdn.com/musically-maliva-obj/1656730121318405~c5_720x720...",
+    "following": 196,
+    "fans": 942500,
+    "heart": 9600000,
+    "video": 715,
+    "digg": 3466
+  },
+  "musicMeta": {
+    "musicName": "original sound",
+    "musicAuthor": "Mayra Wendolyne",
+    "musicOriginal": true,
+    "musicAlbum": "",
+    "playUrl": "https://sf16-ies-music-va.tiktokcdn.com/obj/musically-maliva-obj/6905589921495452422.mp3"
+  },
+  "webVideoUrl": "https://www.tiktok.com/@lowcarblove/video/6905590108888747269",
+  "videoUrl": "https://v16-web.tiktok.com/video/tos/useast2a/tos-useast2a-pve-0068/b9def91b70bd4bb997d6e13c...",
+  "videoMeta": {
+    "height": 1024,
+    "width": 576,
+    "duration": 36
+  },
+  "diggCount": 644500,
+  "shareCount": 88200,
+  "playCount": 6000000,
+  "commentCount": 5216,
+  "downloaded": false,
+  "mentions": [],
   "hashtags": [
     {
-      "hashtag": "cockatiels ",
-      "url": "https://www.tiktok.com/tag/cockatiels?lang=en"
+      "id": "223064",
+      "name": "friedpickles",
+      "title": "",
+      "cover": ""
     },
     {
-      "hashtag": "cockatiel ",
-      "url": "https://www.tiktok.com/tag/cockatiel?lang=en"
+      "id": "8289028",
+      "name": "keto",
+      "title": "",
+      "cover": ""
     },
     {
-      "hashtag": "ave ",
-      "url": "https://www.tiktok.com/tag/ave?lang=en"
+      "id": "28977063",
+      "name": "omad",
+      "title": "",
+      "cover": ""
     },
     {
-      "hashtag": "bird ",
-      "url": "https://www.tiktok.com/tag/bird?lang=en"
+      "id": "1623147616577542",
+      "name": "ketosnack",
+      "title": "",
+      "cover": ""
     },
     {
-      "hashtag": "fy ",
-      "url": "https://www.tiktok.com/tag/fy?lang=en"
+      "id": "49546115",
+      "name": "crunchsounds",
+      "title": "",
+      "cover": ""
     },
     {
-      "hashtag": "calopsite ",
-      "url": "https://www.tiktok.com/tag/calopsite?lang=en"
+      "id": "1248236",
+      "name": "asmr",
+      "title": "Create &amp; enjoy the most satisfying sounds (ASMR) while cooking, applying your beauty routine, creating art, or any of your other hobbies!🤩",
+      "cover": "https://p16-amd-va.tiktokcdn.com/obj/musically-maliva-obj/99cb203b5d6c61ac91707cb06ecd8a61"
     },
     {
-      "hashtag": "calopsita ",
-      "url": "https://www.tiktok.com/tag/calopsita?lang=en"
-    },
-    {
-      "hashtag": "birds ",
-      "url": "https://www.tiktok.com/tag/birds?lang=en"
-    },
-    {
-      "hashtag": "🐦 ",
-      "url": "https://www.tiktok.com/tag/%F0%9F%90%A6?lang=en"
-    },
-    {
-      "hashtag": "fyy",
-      "url": "https://www.tiktok.com/tag/fyy?lang=en"
+      "id": "563964",
+      "name": "comfortfood",
+      "title": "From recipes to wind down a busy day or a food spot you visit when you're feeling down, we'd love to hear your food story and your #comfortfood experiences. Check out some of the best food stories and recipes here. 🥘",
+      "cover": ""
     }
-  ],
-  "music": "som original - calopsitas_mansa",
-  "videoUrl1": "https://www.tiktok.com/@calopsitas_mansa/video/6890903737309728001",
-  "videoId": "6890903737309728001",
-  "userId": "6807203737644860422",
-  "videoUrl2": "https://v16-web.tiktok.com/video/tos/alisg/tos-alisg-pve-0037c001/...
-  "likes": "374K",
-  "comments": "3467",
-  "shares": "13.1K",
-  "scrapedAt": "2021-09-15T09:22:30.697Z"
+  ]
 }
 ```
 
 ## Limitations
-TikTok Scraper currently only scrapes the first page of results for TikTok hashtag search, so you will usually get a maximum of 36 results per hashtag. You can scrape more than one hashtag, but each will still return a maximum of 36 results.
+TikTok Scraper scrapes custom number of results from every hashtag search or user profile, which is defined by 'resultsPerPage' parameter from input.
 
 ## Personal data
 You should be aware that your results might contain personal data. Personal data is protected by GDPR in the European Union and by other regulations around the world. You should not scrape personal data unless you have a legitimate reason to do so. If you're unsure whether your reason is legitimate, consult your lawyers. You can also read our blog post on the [legality of web scraping](https://blog.apify.com/is-web-scraping-legal/).
