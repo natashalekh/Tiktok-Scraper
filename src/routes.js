@@ -1,147 +1,119 @@
 const Apify = require('apify');
+const { parseXhrResponseItem, retireOnBlocked, parseResults } = require('./tools');
 
 const { utils: { log } } = Apify;
 
-exports.handleList = async ({ request, page }, requestQueue, maxResultsPerPage) => {
-    // Wait for the network to settle, initially there will be 36 videos loaded. There
-    // are more with a scroll event - not implemented yet.
-    await page.waitForNetworkIdle({
-        idleTime: 2000
-    });
+exports.handleList = async (request, page, resultsPerPage, session, browserPool, progress) => {
+    // TikTok has first 6 videos loaded by a script, more are loaded by XHR requests
+    const maxResultsWithoutOffset = resultsPerPage - 6;
+    let waitingForResponse = true;
+    // number of results already pushed to dataset in batches
+    let outputLength = Object.keys(progress).length;
+    // compute dynamically a period of time needed for the amount of videos to be scraped (500 mls for 1 video)
+    const timeout = (resultsPerPage - outputLength) * 500;
 
-    // video-feed list
-    let videoUrls = await page.$$eval('main .video-feed-item', (els) => els.reduce((total, video) => {
-           total.push(video.querySelector('a')?.getAttribute('href'));
-           return total;
-    }, []).filter((videoUrl) => videoUrl));
-
-    log.info(`[SEARCH VIDEOS]: Found ${videoUrls.length} videos.`)
-    if (maxResultsPerPage !== undefined && maxResultsPerPage !== 0) {
-        videoUrls = videoUrls.splice(0, maxResultsPerPage);
+    const matchXhrResponse = async (xhrResponse) => {
+        return (xhrResponse.request().method() === 'GET'
+            && (// request from hashtag search
+                xhrResponse.url().includes('https://m.tiktok.com/api/challenge/item_list/')
+                // request from profile
+                || xhrResponse.url().includes('https://m.tiktok.com/api/post/item_list/')
+            )
+        );
     }
-    log.info(`[SEARCH VIDEOS]: Adding ${videoUrls.length} videos to queue.`)
 
-    if (request.url.includes('tag')) {
-        // hashtag url
-        const header = await page.evaluate(() => {
-            return {
-                searchHashtag: document.querySelector('header .share-title')
-                    ?.innerText
-                    .substr(1) || null,
-                numberOfViewsOnHashtag: document.querySelector('header [title="views"]')
-                    ?.innerText
-                    .split(' ')[0] || null,
-            };
-        });
-        for (const videoUrl of videoUrls) {
-            const matchUrl = videoUrl.match(/.*\/video/);
-            const matchVideoId = videoUrl.match(/[0-9]+/);
-            if (matchUrl) {
-                const userUrl = matchUrl[0];
-                if (matchVideoId) {
-                    await requestQueue.addRequest({
-                        // '/video' part of the url we matched before have to be truncated
-                        url: userUrl.substr(0, (userUrl.length - 6)),
-                        userData: {
-                            label: 'USER',
-                            header,
-                            videoUrl,
-                        },
-                        uniqueKey:matchVideoId[0],
-                    });
-                } else {
-                    throw new Error ('The video has no id defined.');
-                }
+    while (waitingForResponse) {
+        // waiting for XHR request response containing data about videos and scrolling for more results
+        const [xhrResponse] = await Promise.all([
+            page.waitForResponse(matchXhrResponse, {timeout: timeout}),
+            page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+        ]);
+
+        log.info(`[${request.userData.label}] XHR response received, parsing results... --- ${request.url}`);
+
+        const result = await xhrResponse.json();
+        if (result.itemList) {
+            const parsedResults = parseResults(result.itemList, progress);
+            outputLength += parsedResults.length;
+            if (outputLength < maxResultsWithoutOffset) {
+                await Apify.pushData(parsedResults);
             } else {
-                throw new Error('User url was not found in video url.');
+                log.info(`[${request.userData.label}] Scraped ${maxResultsWithoutOffset} videos. Scrolling finished.  --- ${request.url}`);
+                // remove superfluous results from the end of parsedResults
+                await Apify.pushData(parsedResults.splice(0, (parsedResults.length - (outputLength - maxResultsWithoutOffset))));
+                waitingForResponse = false;
+            }
+            // persist ids of scraped videos
+            progress = {
+                ...progress,
+                ...parsedResults
+                    .reduce((ids, result) => {
+                        ids.push(result.id);
+                        return ids;
+                        }, [])
+                    .reduce((ids, id) => ({...ids, [id]:id}), {}),
+            }
+            await Apify.setValue('PROGRESS', progress);
+        } else {
+            throw new Error('XHR response was corrupted. Request needs to be retried.');
+        }
+
+        if (waitingForResponse) {
+            log.info(`[${request.userData.label}] Scraped ${outputLength} videos. Scrolling down for more results...  --- ${request.url}`);
+        }
+
+        if(!result.hasMore) {
+            log.info(`[${request.userData.label}] Scraped only ${outputLength} videos from ${maxResultsWithoutOffset}, but this list doesn't have more. Scrolling finished.  --- ${request.url}`);
+            waitingForResponse = false;
+        }
+    }
+
+    // first 6 (or less depends on the posted content) videos are loaded by a script
+    let loadedData = await page.evaluate(() => document.querySelector('script[id=__NEXT_DATA__]')?.innerHTML);
+    // the page should be loaded, but doesn't have scripts available, probably some kind of blocking
+    if (!loadedData){
+        await retireOnBlocked(session, browserPool, request);
+    }else{
+        loadedData = JSON.parse(loadedData);
+    }
+    const firstVideos = loadedData.props.pageProps.items;
+
+    // The response wasn't received and it's an error when resultsPerPage are set higher than 6
+    // and there is more content then 6 videos
+    if (outputLength === 0 && resultsPerPage > 6 && firstVideos.length === 6) {
+        if (request.userData.label !== 'PROFILE') {
+            throw new Error(`XHR response wasn't received, request needs to retry.`);
+        } else {
+            // when the user profile has exactly 6 videos don't throw error
+            if (firstVideos[0].authorStats.videoCount > 6){
+                throw new Error(`XHR response wasn't received, request needs to retry.`);
             }
         }
-    } else {
-        // user url
-        const userInfo = await getUserInfo(page, request.url);
-
-        for (const videoUrl of videoUrls) {
-            await requestQueue.addRequest({
-                url: videoUrl,
-                userData: {
-                    label: 'VIDEO',
-                    userInfo,
-                },
-            });
-        }
     }
+    // handle first videos from the page
+    if (firstVideos) {
+        log.info(`[${request.userData.label}] Scraped first ${firstVideos.length} videos.  --- ${request.url}`);
+        await Apify.pushData(parseResults(firstVideos));
+    } else {
+        throw new Error('Loading of the first videos was unsuccessful and request needs to be retried.');
+    }
+    log.info(`[${request.userData.label}] Request finished successfully --- ${request.url}`);
 };
 
-exports.handleUser = async ({ request, page }, requestQueue) => {
-    const userInfo = await getUserInfo(page, request.url);
-
-    await requestQueue.addRequest({
-        url: request.userData.videoUrl,
-        userData: {
-            label: 'VIDEO',
-            header: request.userData.header,
-            userInfo,
-        },
-    }, {forefront: true});
-};
-
-exports.handleVideo = async ({ request, page }) => {
-    const output = await page.evaluate(() => {
-        const nicknameAndDate = document.querySelector('.feed-item-content .author-nickname').innerText.split(' · ');
-        const hashtags = [];
-        [...document.querySelector('.feed-item-content .tt-video-meta-caption').querySelectorAll('a')]
-            .map((hashtag) => {
-                hashtags.push({
-                    hashtag: hashtag.innerText.substr(1).trim(),
-                    url: `https://www.tiktok.com${hashtag.getAttribute('href')}`,
-                });
-            });
-        const video = document.querySelector('.feed-item-content .item-video-container video');
-
-        return {
-            userImageUrl: document.querySelector('.video-detail .user-avatar img').getAttribute('src'),
-            userName: document.querySelector('.feed-item-content .author-uniqueId').innerText,
-            userNickname: nicknameAndDate[0] || null,
-            uploadDate: nicknameAndDate[1] || null,
-            caption: document.querySelector('.feed-item-content .tt-video-meta-caption').querySelector('strong').innerText.trim(),
-            hashtags,
-            music: document.querySelector('.feed-item-content .tt-video-music').innerText,
-            userId: video.getAttribute('authorid'),
-            videoUrl: video.getAttribute('src'),
-            likes: document.querySelector('.feed-item-content .item-video-container [title="like"]').innerText,
-            comments: document.querySelector('.feed-item-content .item-video-container [title="comment"]').innerText,
-            shares: document.querySelector('.feed-item-content .item-video-container [title="share"]').innerText,
-            scrapedAt: new Date().toISOString(),
-        };
-    });
-
-    await Apify.pushData({
-        ...(request.userData.header ?? {}),
-        ...request.userData.userInfo,
-        ...output,
-        videoUrlOnTiktok: request.url,
-        videoId: request.url.match(/[0-9]+/)[0],
-    });
-};
-
-const getUserInfo = async (page, url) => {
-    return page.evaluate((url) => {
-        const shareLinks = [];
-        if (document.querySelector('.share-links')) {
-            [...document.querySelector('.share-links')
-                .querySelectorAll('a')]
-                .map((link) => {
-                    shareLinks.push(link.innerText);
-                });
-        }
-
-        return {
-            userUrl: url,
-            following: document.querySelector('.count-infos [title="Following"]').innerText,
-            followers: document.querySelector('.count-infos [title="Followers"]').innerText,
-            userTotalLikes: document.querySelector('.count-infos [title="Likes"]').innerText,
-            userDescription: document.querySelector('.share-desc').innerText,
-            userShareLinks: shareLinks,
-        };
-    }, url);
+exports.handlePost = async (request, page, session, browserPool) => {
+    let loadedData = await page.evaluate(() => document.querySelector('script[id=__NEXT_DATA__]')?.innerHTML);
+    // the page should be loaded, but doesn't have scripts available, probably some kind of blocking
+    if (!loadedData){
+        await retireOnBlocked(session, browserPool, request);
+    } else {
+        loadedData = JSON.parse(loadedData);
+    }
+    const video = loadedData.props.pageProps.itemInfo.itemStruct;
+    if (video) {
+        log.info(`[${request.userData.label}] Video scraped.  --- ${request.url}`);
+    } else {
+        throw new Error(`Something went wrong when scraping post --- ${request.url}.`);
+    }
+    log.info(`[${request.userData.label}] Pushing result into dataset...  --- ${request.url}`);
+    await Apify.pushData(parseXhrResponseItem(video));
 };

@@ -1,6 +1,6 @@
 {
 "title": "Input schema for TikTok scraper",
-"description": "Scrapes the first page of results from TikTok hashtag search.",
+"description": "Scrapes the hashtag searches, profiles and individual posts.",
 "type": "object",
 "schemaVersion": 1,
 "properties": {
@@ -13,20 +13,19 @@
 "followforfollowback"
 ]
 },
-"startURLs": {
-"title": "What URLs do you want to scrape?",
-"type": "array",
-"editor": "requestListSources",
-"description": "Add the URL you want to scrape. You can enter URLs one by one, or you can upload or link to a text file. The URL must be a tag, channel, or user URL. TikTok Scraper currently doesn't support search URLs.",
-"sectionCaption": "Start URLs"
+"profiles": {
+    "title": "What user profiles do you want to scrape?",
+    "type": "array",
+    "editor": "stringList",
+    "description": "Add the name of user you want to scrape.",
+    "sectionCaption": "Profiles"
 },
-"maxResultsPerPage": {
-"title": "Max results per page",
-"type": "integer",
-"unit": "results",
-"description": "The maximum number of results that will be saved to the resulting dataset. <br><br>If set to <code>0</code>, there is no limit.",
-"minimum": 0,
-"default": 0
+"postURLs": {
+"title": "What videos do you want to scrape?",
+"type": "array",
+"editor": "stringList",
+"description": "Add the URLs of posted videos you want to scrape. You can enter URLs one by one, or you can upload or link to a text file.",
+"sectionCaption": "Post URLs"
 },
 "proxyConfiguration": {
 "title": "Set up your proxy configuration",
@@ -37,6 +36,28 @@
 "useApifyProxy": true
 },
 "sectionCaption": "Proxy configuration"
+},
+"maxRequestRetries": {
+    "title": "Max request retries",
+    "type": "integer",
+    "editor": "number",
+    "description": "How many times a page will be retried in case of being blocked or other errors.",
+    "default": 10
+},
+"maxConcurrency": {
+    "title": "Max Concurrency",
+    "type": "integer",
+    "description": "Max number of allowed instances running in parallel. More instances need more memory!",
+    "editor": "number",
+    "default": 1
+},
+"resultsPerPage": {
+    "title": "Max results per page",
+    "type": "integer",
+    "unit": "results",
+    "description": "The number of results that will be scraped from every hashtag and profile.",
+    "minimum": 1,
+    "default": 10
 }
 },
 "required": [

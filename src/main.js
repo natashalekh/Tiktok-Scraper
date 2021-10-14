@@ -1,77 +1,128 @@
 const Apify = require('apify');
-const { handleList, handleVideo, handleUser } = require('./routes');
+const { handleList, handlePost } = require('./routes');
 const { proxyConfiguration } = require('./proxyValidation');
 
 const { utils: { log } } = Apify;
 
 Apify.main(async () => {
-    // TODO: maxItems, extendedOutputFunction
     const input = await Apify.getInput();
-    const { startURLs, hashtags, maxResultsPerPage } = input;
-    if (!startURLs && !hashtags) {
-        throw new Error('Input must contain startURL or hashtag.');
+    const { postURLs, hashtags, profiles, resultsPerPage, maxConcurrency, maxRequestRetries } = input;
+    // input check
+    if (!postURLs && !hashtags && !profiles) {
+        throw new Error('Input must contain postURLs, hashtags or profiles.');
+    } else if (hashtags || profiles) {
+        if (!resultsPerPage) {
+            throw new Error('Please, specify the number of results, which should be extracted from hashtag or profile page.');
+        }
     }
 
     const proxyConfig = await proxyConfiguration({
         proxyConfig: input.proxyConfiguration,
     });
 
-    let startingUrls = [];
-    if (startURLs) {
-        startingUrls = startURLs;
+    const startingUrls = [];
+    // enqueue post urls
+    if (postURLs) {
+        for (const postURL of postURLs) {
+            startingUrls.push({
+                url: postURL,
+                userData: {
+                    label: 'VIDEO',
+                },
+            });
+        }
     }
-    const requestList = await Apify.openRequestList('start-urls', startingUrls);
-    const requestQueue = await Apify.openRequestQueue();
+    // enqueue hashtag urls
     if (hashtags) {
         for (const hashtag of hashtags) {
             // remove all white spaces from hashtag
             hashtag.replaceAll(/\s/g, '');
-            await requestQueue.addRequest({
+            startingUrls.push({
                 url: `https://www.tiktok.com/tag/${hashtag}`,
+                userData: {
+                    label: 'HASHTAG',
+                },
+            });
+        }
+    }
+    // enqueue profiles urls
+    if (profiles) {
+        for (const profile of profiles) {
+            // remove all white spaces from profile
+            profile.replaceAll(/\s/g, '');
+            startingUrls.push({
+                url: `https://www.tiktok.com/@${profile}?`,
+                userData: {
+                    label: 'PROFILE',
+                },
             });
         }
     }
 
+    const requestList = await Apify.openRequestList('start-urls', startingUrls);
+
     const crawler = new Apify.PuppeteerCrawler({
-        maxRequestRetries: 10,
+        // the function needs enough time for scrolling and loading videos
+        handlePageTimeoutSecs: resultsPerPage,
+        maxRequestRetries,
         requestList,
-        requestQueue,
         proxyConfiguration: proxyConfig,
-        maxConcurrency: 30,
+        maxConcurrency,
         useSessionPool: true,
         persistCookiesPerSession: true,
         launchContext: {
             useChrome: true,
             stealth: true,
         },
-        handlePageFunction: async (context) => {
-            const { url, userData: { label } } = context.request;
-            log.info(`${context.response.status()}|${label}|${url}`);
+        preNavigationHooks: [
+            async ({ request }, gotoOptions) => {
+                if (request.userData.label === 'VIDEO') {
+                    gotoOptions.waitUntil = 'load';
+                } else {
+                    gotoOptions.waitUntil = 'domcontentloaded';
+                }
+            },
+        ],
+        handlePageFunction: async ({ page, session, request, response, crawler }) => {
+            const { url, userData: { label } } = request;
+            log.info(`${response.status()}|${label}|${url}`);
 
-            const title = await context.page.$eval('title', (titl) => titl.innerText.trim());
+            // get persisted progress info for each request
+            let progress = await Apify.getValue('PROGRESS');
+            if (!progress) {
+                // ids of already scraped videos
+                progress = {};
+            }
+
+            // check for blocking
+            const title = await page.evaluate(() => document.querySelector('title')?.innerText.trim());
             if (title.includes('Something went wrong')
                 || title.includes('Robot Check')
-                || title.includes('verify')) {
+                || title.includes('verify')
+                || title === 'TikTok') {
                 // retire the session
-                context.session.retire();
+                session.retire();
                 throw new Error(`${url} was blocked and needs to retry.`);
             }
+
             // If the page is not found do nothing.
-            if (context.response.status() === 404) {
-                log.info(`Stopping with not found --- ${context.response.status()} - ${url}`);
-                return;
+            if (response.status() === 404) {
+                log.info(`Stopping with not found --- ${response.status()} - ${url}`);
             }
+
             switch (label) {
-                case 'USER':
-                    return handleUser(context, requestQueue);
+                case 'PROFILE':
+                    return handleList(request, page, resultsPerPage, session, crawler.browserPool, progress);
+                case 'HASHTAG':
+                    return handleList(request, page, resultsPerPage, session, crawler.browserPool, progress);
                 case 'VIDEO':
-                    return handleVideo(context);
+                    return handlePost(request, page, session, crawler.browserPool);
                 default:
-                    return handleList(context, requestQueue, maxResultsPerPage);
+                    throw new Error(`${label} is unknown.`);
             }
         },
-        handleFailedRequestFunction: async (context) => {
-            log.error(`Request failed too many times --- ${context.request.url}`);
+        handleFailedRequestFunction: async ({request}) => {
+            log.error(`Request failed too many times --- ${request.url}`);
         },
     });
 
