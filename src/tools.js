@@ -71,7 +71,7 @@ const parseHashtagsFromXhrItem = (xhrData) => {
 
 exports.retireOnBlocked = async (session, browserPool, request) => {
     // retire the session and switch browsers
-    log.info(`[Blocked]: [${request.userData.label}]: ${request.url} was probably blocked, waiting before retrying.`)
+    log.info(`[Blocked]: [${request.userData.label}]: ${request.url} was probably blocked, waiting before retrying.`);
     session.retire();
     await browserPool.retireAllBrowsers();
     throw new Error(`${request.url} was blocked and needs to retry.`)

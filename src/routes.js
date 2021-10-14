@@ -35,14 +35,6 @@ exports.handleList = async (request, page, resultsPerPage, session, browserPool,
         if (result.itemList) {
             const parsedResults = parseResults(result.itemList, progress);
             outputLength += parsedResults.length;
-            if (outputLength < maxResultsWithoutOffset) {
-                await Apify.pushData(parsedResults);
-            } else {
-                log.info(`[${request.userData.label}] Scraped ${maxResultsWithoutOffset} videos. Scrolling finished.  --- ${request.url}`);
-                // remove superfluous results from the end of parsedResults
-                await Apify.pushData(parsedResults.splice(0, (parsedResults.length - (outputLength - maxResultsWithoutOffset))));
-                waitingForResponse = false;
-            }
             // persist ids of scraped videos
             progress = {
                 ...progress,
@@ -50,10 +42,24 @@ exports.handleList = async (request, page, resultsPerPage, session, browserPool,
                     .reduce((ids, result) => {
                         ids.push(result.id);
                         return ids;
-                        }, [])
+                    }, [])
                     .reduce((ids, id) => ({...ids, [id]:id}), {}),
             }
-            await Apify.setValue('PROGRESS', progress);
+            if (outputLength < maxResultsWithoutOffset) {
+                // make pushing and persisting atomic
+                await Promise.all([
+                    Apify.pushData(parsedResults),
+                    Apify.setValue('PROGRESS', progress),
+                ]);
+            } else {
+                log.info(`[${request.userData.label}] Scraped ${maxResultsWithoutOffset} videos. Scrolling finished.  --- ${request.url}`);
+                // remove superfluous results from the end of parsedResults
+                await Promise.all([
+                    Apify.pushData(parsedResults.splice(0, (parsedResults.length - (outputLength - maxResultsWithoutOffset)))),
+                    Apify.setValue('PROGRESS', progress),
+                ]);
+                waitingForResponse = false;
+            }
         } else {
             throw new Error('XHR response was corrupted. Request needs to be retried.');
         }
