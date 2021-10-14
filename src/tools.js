@@ -2,6 +2,10 @@ const Apify = require('apify');
 
 const { utils: { log } } = Apify;
 
+/**
+ * Parses XHR json data to appropriate output form.
+ * @param xhrData Item to be parsed.
+ */
 const parseXhrResponseItem = (xhrData) => {
     return {
         id: xhrData.id,
@@ -46,6 +50,11 @@ const parseXhrResponseItem = (xhrData) => {
     };
 };
 
+/**
+ * Matches hashtags with challenges by id and merges the result into appropriate output form.
+ * @param xhrData Item, which hashtags should be matched and merged.
+ * @returns {[]}
+ */
 const parseHashtagsFromXhrItem = (xhrData) => {
     const hashtags = [];
     if (xhrData.textExtra) {
@@ -69,14 +78,26 @@ const parseHashtagsFromXhrItem = (xhrData) => {
     return hashtags;
 };
 
+/**
+ * Retires current session, browser and makes request retry.
+ * @param session Current session to be retired.
+ * @param browserPool Crawler's browserPool.
+ * @param request Current handled request.
+ */
 exports.retireOnBlocked = async (session, browserPool, request) => {
     // retire the session and switch browsers
     log.info(`[Blocked]: [${request.userData.label}]: ${request.url} was probably blocked, waiting before retrying.`);
     session.retire();
     await browserPool.retireAllBrowsers();
-    throw new Error(`${request.url} was blocked and needs to retry.`)
+    throw new Error(`${request.url} was blocked and needs to retry.`);
 };
 
+/**
+ * Parses an array of xhrData items and filters the ones that have been already scraped.
+ * @param results Array of items to be parsed.
+ * @param progress Set of already scraped items.
+ * @returns {[]}
+ */
 exports.parseResults = (results, progress = []) => {
     const output = [];
     for (const result of results) {
