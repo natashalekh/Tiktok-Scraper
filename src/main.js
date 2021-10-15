@@ -12,6 +12,7 @@ Apify.main(async () => {
         throw new Error('Input must contain postURLs, hashtags or profiles.');
     } else if (hashtags || profiles) {
         if (!resultsPerPage) {
+            //resultsPerPage should have a minimal value of 1
             throw new Error('Please, specify the number of results, which should be extracted from hashtag or profile page.');
         }
     }
@@ -51,7 +52,7 @@ Apify.main(async () => {
             // remove all white spaces from profile
             profile.replaceAll(/\s/g, '');
             startingUrls.push({
-                url: `https://www.tiktok.com/@${profile}?`,
+                url: `https://www.tiktok.com/@${profile}`,
                 userData: {
                     label: 'PROFILE',
                 },
@@ -63,7 +64,7 @@ Apify.main(async () => {
 
     const crawler = new Apify.PuppeteerCrawler({
         // the function needs enough time for scrolling and loading videos
-        handlePageTimeoutSecs: resultsPerPage,
+        handlePageTimeoutSecs: resultsPerPage > 60 ? resultsPerPage : 60,
         maxRequestRetries,
         requestList,
         proxyConfiguration: proxyConfig,

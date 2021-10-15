@@ -1,3 +1,6 @@
+## 2021-10-15
+*Fixes*
+- `handlePageFunction` does not timeout when `resultsPerPage` are set low
 ## 2021-10-14
 *Features*
 - New output structure

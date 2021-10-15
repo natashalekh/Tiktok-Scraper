@@ -9,8 +9,8 @@ exports.handleList = async (request, page, resultsPerPage, session, browserPool,
     let waitingForResponse = true;
     // number of results already pushed to dataset in batches
     let outputLength = Object.keys(progress).length;
-    // compute dynamically a period of time needed for the amount of videos to be scraped (500 mls for 1 video)
-    const timeout = (resultsPerPage - outputLength) * 500;
+    // compute dynamically a period of time needed for the videos to be scraped (500 mls for 1 video)
+    const timeout = resultsPerPage > 60 ? resultsPerPage * 500 : 30000;
 
     const matchXhrResponse = async (xhrResponse) => {
         return (xhrResponse.request().method() === 'GET'
