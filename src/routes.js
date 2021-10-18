@@ -8,7 +8,7 @@ exports.handleList = async (request, page, resultsPerPage, session, browserPool,
     const maxResultsWithoutOffset = resultsPerPage - 6;
     let waitingForResponse = true;
     // number of results already pushed to dataset in batches
-    let outputLength = Object.keys(progress).length;
+    let outputLength = 0;
     // compute dynamically a period of time needed for the videos to be scraped (500 mls for 1 video)
     const timeout = resultsPerPage > 60 ? resultsPerPage * 500 : 30000;
 
@@ -34,7 +34,7 @@ exports.handleList = async (request, page, resultsPerPage, session, browserPool,
         const result = await xhrResponse.json();
         if (result.itemList) {
             const parsedResults = parseResults(result.itemList, progress);
-            outputLength += parsedResults.length;
+            outputLength += result.itemList.length;
             // persist ids of scraped videos
             progress = {
                 ...progress,

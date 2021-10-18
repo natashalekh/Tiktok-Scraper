@@ -1,3 +1,7 @@
+## 2021-10-18
+*Fixes*
+- computation of `outputLength` is no longer dependent on persisted progress,
+  meaning scraping of more than one hashtag/profile is now working properly.
 ## 2021-10-15
 *Fixes*
 - `handlePageFunction` does not timeout when `resultsPerPage` are set low
