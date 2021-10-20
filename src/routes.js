@@ -9,6 +9,7 @@ exports.handleList = async (request, page, resultsPerPage, session, browserPool,
     let waitingForResponse = true;
     // number of results already pushed to dataset in batches
     let outputLength = 0;
+    let pushedDataLength = 0;
     // compute dynamically a period of time needed for the videos to be scraped (500 mls for 1 video)
     const timeout = resultsPerPage > 60 ? resultsPerPage * 500 : 30000;
 
@@ -23,18 +24,33 @@ exports.handleList = async (request, page, resultsPerPage, session, browserPool,
     }
 
     while (waitingForResponse) {
-        // waiting for XHR request response containing data about videos and scrolling for more results
-        const [xhrResponse] = await Promise.all([
-            page.waitForResponse(matchXhrResponse, {timeout: timeout}),
-            page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
-        ]);
+        // the browser needs to be restarted when no response is awaited
+        let xhrResponse = null;
+        try {
+            // waiting for XHR request response containing data about videos and scrolling for more results
+             [xhrResponse] = await Promise.all([
+                page.waitForResponse(matchXhrResponse, { timeout: timeout }),
+                page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+            ]);
+        } catch (e) {
+            await retireOnBlocked(session, browserPool, request, e);
+        }
 
         log.info(`[${request.userData.label}] XHR response received, parsing results... --- ${request.url}`);
 
         const result = await xhrResponse.json();
         if (result.itemList) {
             const parsedResults = parseResults(result.itemList, progress);
-            outputLength += result.itemList.length;
+            pushedDataLength += parsedResults.length;
+            // only ignore the streak of already pushed videos to reach the correct number of results
+            // TiTok has a bug, when it fires the same request two times, it caused less results on output than expected
+            if (pushedDataLength > 0) {
+                outputLength += parsedResults.length
+            } else {
+                outputLength += result.itemList.length;
+            }
+            console.log(`DEBUG: Got ${result.itemList.length} items and scraped ${parsedResults.length} of them - ${pushedDataLength} pushed in total / ${outputLength} received in total`);
+
             // persist ids of scraped videos
             progress = {
                 ...progress,
@@ -78,7 +94,7 @@ exports.handleList = async (request, page, resultsPerPage, session, browserPool,
     let loadedData = await page.evaluate(() => document.querySelector('script[id=__NEXT_DATA__]')?.innerHTML);
     // the page should be loaded, but doesn't have scripts available, probably some kind of blocking
     if (!loadedData){
-        await retireOnBlocked(session, browserPool, request);
+        await retireOnBlocked(session, browserPool, request, new Error(`The page doesn\'t have scripts available --- ${request.url}`));
     }else{
         loadedData = JSON.parse(loadedData);
     }
@@ -99,7 +115,10 @@ exports.handleList = async (request, page, resultsPerPage, session, browserPool,
     // handle first videos from the page
     if (firstVideos) {
         log.info(`[${request.userData.label}] Scraped first ${firstVideos.length} videos.  --- ${request.url}`);
-        await Apify.pushData(parseResults(firstVideos));
+        //sometimes there is more than 6 videos loaded, so the array has to be truncated, because we already scraped
+        // all videos with index > 6
+        const firstSixVideos = firstVideos.splice(0,6);
+        await Apify.pushData(parseResults(firstSixVideos));
     } else {
         throw new Error('Loading of the first videos was unsuccessful and request needs to be retried.');
     }
@@ -110,7 +129,7 @@ exports.handlePost = async (request, page, session, browserPool) => {
     let loadedData = await page.evaluate(() => document.querySelector('script[id=__NEXT_DATA__]')?.innerHTML);
     // the page should be loaded, but doesn't have scripts available, probably some kind of blocking
     if (!loadedData){
-        await retireOnBlocked(session, browserPool, request);
+        await retireOnBlocked(session, browserPool, request, new Error(`The page doesn\'t have scripts available --- ${request.url}`));
     } else {
         loadedData = JSON.parse(loadedData);
     }
