@@ -25,68 +25,67 @@ exports.handleList = async (request, page, resultsPerPage, session, browserPool,
 
     while (waitingForResponse) {
         // the browser needs to be restarted when no response is awaited
-        let xhrResponse = null;
         try {
             // waiting for XHR request response containing data about videos and scrolling for more results
              [xhrResponse] = await Promise.all([
                 page.waitForResponse(matchXhrResponse, { timeout: timeout }),
                 page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
             ]);
-        } catch (e) {
-            await retireOnBlocked(session, browserPool, request, e);
-        }
 
-        log.info(`[${request.userData.label}] XHR response received, parsing results... --- ${request.url}`);
+            log.info(`[${request.userData.label}] XHR response received, parsing results... --- ${request.url}`);
 
-        const result = await xhrResponse.json();
-        if (result.itemList) {
-            const parsedResults = parseResults(result.itemList, progress);
-            pushedDataLength += parsedResults.length;
-            // only ignore the streak of already pushed videos to reach the correct number of results
-            // TiTok has a bug, when it fires the same request two times, it caused less results on output than expected
-            if (pushedDataLength > 0) {
-                outputLength += parsedResults.length
+            const result = await xhrResponse.json();
+            if (result.itemList) {
+                const parsedResults = parseResults(result.itemList, progress);
+                pushedDataLength += parsedResults.length;
+                // only ignore the streak of already pushed videos to reach the correct number of results
+                // TiTok has a bug, when it fires the same request two times, it caused less results on output than expected
+                if (pushedDataLength > 0) {
+                    outputLength += parsedResults.length
+                } else {
+                    outputLength += result.itemList.length;
+                }
+                console.log(`DEBUG: Got ${result.itemList.length} items and scraped ${parsedResults.length} of them - ${pushedDataLength} pushed in total / ${outputLength} received in total`);
+
+                // persist ids of scraped videos
+                progress = {
+                    ...progress,
+                    ...parsedResults
+                        .reduce((ids, result) => {
+                            ids.push(result.id);
+                            return ids;
+                        }, [])
+                        .reduce((ids, id) => ({...ids, [id]:id}), {}),
+                }
+                if (outputLength < maxResultsWithoutOffset) {
+                    // make pushing and persisting atomic
+                    await Promise.all([
+                        Apify.pushData(parsedResults),
+                        Apify.setValue('PROGRESS', progress),
+                    ]);
+                } else {
+                    log.info(`[${request.userData.label}] Scraped ${maxResultsWithoutOffset} videos. Scrolling finished.  --- ${request.url}`);
+                    // remove superfluous results from the end of parsedResults
+                    await Promise.all([
+                        Apify.pushData(parsedResults.splice(0, (parsedResults.length - (outputLength - maxResultsWithoutOffset)))),
+                        Apify.setValue('PROGRESS', progress),
+                    ]);
+                    waitingForResponse = false;
+                }
             } else {
-                outputLength += result.itemList.length;
+                throw new Error('XHR response was corrupted. Request needs to be retried.');
             }
-            console.log(`DEBUG: Got ${result.itemList.length} items and scraped ${parsedResults.length} of them - ${pushedDataLength} pushed in total / ${outputLength} received in total`);
 
-            // persist ids of scraped videos
-            progress = {
-                ...progress,
-                ...parsedResults
-                    .reduce((ids, result) => {
-                        ids.push(result.id);
-                        return ids;
-                    }, [])
-                    .reduce((ids, id) => ({...ids, [id]:id}), {}),
+            if (waitingForResponse) {
+                log.info(`[${request.userData.label}] Scraped ${outputLength} videos. Scrolling down for more results...  --- ${request.url}`);
             }
-            if (outputLength < maxResultsWithoutOffset) {
-                // make pushing and persisting atomic
-                await Promise.all([
-                    Apify.pushData(parsedResults),
-                    Apify.setValue('PROGRESS', progress),
-                ]);
-            } else {
-                log.info(`[${request.userData.label}] Scraped ${maxResultsWithoutOffset} videos. Scrolling finished.  --- ${request.url}`);
-                // remove superfluous results from the end of parsedResults
-                await Promise.all([
-                    Apify.pushData(parsedResults.splice(0, (parsedResults.length - (outputLength - maxResultsWithoutOffset)))),
-                    Apify.setValue('PROGRESS', progress),
-                ]);
+
+            if(!result.hasMore) {
+                log.info(`[${request.userData.label}] Scraped only ${outputLength} videos from ${maxResultsWithoutOffset}, but this list doesn't have more. Scrolling finished.  --- ${request.url}`);
                 waitingForResponse = false;
             }
-        } else {
-            throw new Error('XHR response was corrupted. Request needs to be retried.');
-        }
-
-        if (waitingForResponse) {
-            log.info(`[${request.userData.label}] Scraped ${outputLength} videos. Scrolling down for more results...  --- ${request.url}`);
-        }
-
-        if(!result.hasMore) {
-            log.info(`[${request.userData.label}] Scraped only ${outputLength} videos from ${maxResultsWithoutOffset}, but this list doesn't have more. Scrolling finished.  --- ${request.url}`);
-            waitingForResponse = false;
+        } catch (e) {
+            await retireOnBlocked(session, browserPool, request, e);
         }
     }
 
