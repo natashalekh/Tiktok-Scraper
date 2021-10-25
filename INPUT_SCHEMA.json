@@ -1,69 +1,65 @@
 {
-"title": "Input schema for TikTok scraper",
-"description": "Scrapes the hashtag searches, profiles and individual posts.",
-"type": "object",
-"schemaVersion": 1,
-"properties": {
-"hashtags": {
-"title": "What TikTok hashtags do you want to scrape?",
-"type": "array",
-"editor": "stringList",
-"description": "Just add TikTok hashtags and the scraper will collect information about users, followers, likes, and more.",
-"prefill": [
-"followforfollowback"
-]
-},
-"profiles": {
-    "title": "What user profiles do you want to scrape?",
-    "type": "array",
-    "editor": "stringList",
-    "description": "Add the name of user you want to scrape.",
-    "sectionCaption": "Profiles"
-},
-"postURLs": {
-"title": "What videos do you want to scrape?",
-"type": "array",
-"editor": "stringList",
-"description": "Add the URLs of posted videos you want to scrape. You can enter URLs one by one, or you can upload or link to a text file.",
-"sectionCaption": "Post URLs"
-},
-"proxyConfiguration": {
-"title": "Set up your proxy configuration",
-"type": "object",
-"editor": "proxy",
-"description": "Automatic proxy and the country of your choice is usually the best option, but you can also select specific proxies, or use your own custom proxies.",
-"prefill": {
-"useApifyProxy": true
-},
-"sectionCaption": "Proxy configuration"
-},
-"maxRequestRetries": {
-    "title": "Max request retries",
-    "type": "integer",
-    "editor": "number",
-    "description": "How many times a page will be retried in case of being blocked or other errors.",
-    "default": 10,
-    "sectionCaption": "Request retries"
-},
-"maxConcurrency": {
-    "title": "Max Concurrency",
-    "type": "integer",
-    "description": "Max number of allowed instances running in parallel. More instances need more memory!",
-    "editor": "number",
-    "default": 1,
-    "sectionCaption": "Concurrency"
-},
-"resultsPerPage": {
-    "title": "Max results per page",
-    "type": "integer",
-    "unit": "results",
-    "description": "The number of results that will be scraped from every hashtag and profile.",
-    "minimum": 1,
-    "default": 10,
-    "sectionCaption": "Results per page"
-}
-},
-"required": [
-"proxyConfiguration"
-]
-}
+  "title": "Input schema for TikTok scraper",
+  "description": "Scrapes the hashtag searches, profiles and individual posts.",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+  "hashtags": {
+  "title": "Hashtag(s) to scrape from TikTok",
+  "type": "array",
+  "editor": "stringList",
+  "description": "Just add TikTok hashtags and the scraper will collect information about users, followers, likes, and more.",
+  "prefill": [
+  "followforfollowback"
+  ]
+  },
+  "resultsPerPage": {
+      "title": "Max results per page",
+      "type": "integer",
+      "unit": "results",
+      "description": "The number of results that will be scraped from every hashtag and profile.",
+      "minimum": 1,
+      "prefill": 10
+  },
+  "profiles": {
+      "title": "Profile(s)",
+      "type": "array",
+      "editor": "stringList",
+      "description": "Add the name of user you want to scrape.",
+      "sectionCaption": "Use profile(s) or start URL(s) instead of hashtags"
+  },
+  "postURLs": {
+  "title": "Direct URL(s) for scraping specific video(s)",
+  "type": "array",
+  "editor": "stringList",
+  "description": "Add the URLs of posted videos you want to scrape. You can enter URLs one by one, or you can upload or link to a text file."
+  },
+  "proxyConfiguration": {
+  "title": "Set up your proxy configuration",
+  "type": "object",
+  "editor": "proxy",
+  "description": "Automatic proxy and the country of your choice is usually the best option, but you can also select specific proxies, or use your own custom proxies.",
+  "prefill": {
+  "useApifyProxy": true
+  },
+  "sectionCaption": "Proxy & browser configuration"
+  },
+  "maxRequestRetries": {
+      "title": "Max request retries",
+      "type": "integer",
+      "editor": "number",
+      "description": "How many times a page will be retried in case of being blocked or other errors.",
+      "default": 10
+  },
+  "maxConcurrency": {
+      "title": "Max Concurrency",
+      "type": "integer",
+      "description": "Max number of allowed instances running in parallel. More instances need more memory!",
+      "editor": "number",
+      "default": 1
+  }
+  },
+  "required": [
+  "proxyConfiguration"
+  ]
+  }
