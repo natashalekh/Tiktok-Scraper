@@ -6,7 +6,7 @@ const { utils: { log } } = Apify;
 
 Apify.main(async () => {
     const input = await Apify.getInput();
-    const { postURLs, hashtags, profiles, resultsPerPage, maxConcurrency, maxRequestRetries } = input;
+    const { postURLs, hashtags, profiles, resultsPerPage, maxRequestRetries } = input;
     // input check
     if (!postURLs && !hashtags && !profiles) {
         throw new Error('Input must contain postURLs, hashtags or profiles.');
@@ -68,7 +68,7 @@ Apify.main(async () => {
         maxRequestRetries,
         requestList,
         proxyConfiguration: proxyConfig,
-        maxConcurrency,
+        maxConcurrency: 1,
         useSessionPool: true,
         persistCookiesPerSession: true,
         launchContext: {
