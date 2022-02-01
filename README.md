@@ -1,67 +1,77 @@
-
-Free TikTok scraper to extract data about videos, users, and channels based on hashtags. Use it to scrape TikTok information such as one or several hashtags, full user profiles or posts, followers and following, total likes, name, nickname, number of comments, number of shares, and lots of other useful data.
-
 ## Features
 
-Our free TikTok Scraper allows extracting data about videos from the [TikTok](https://www.tiktok.com/) social media site. It gives you detailed TikTok information in structured formats such as Excel, XML, JSON, and CSV, which you can use in your own reports, spreadsheets, and applications. Our TikTok Scraper allows you to scrape:
+Our free TikTok Scraper allows extracting data about videos from the  [TikTok](https://www.tiktok.com/)  social media site. It gives you detailed TikTok information in structured formats such as  _Excel, XML, HTML, JSON,_  and  _CSV_, which you can use in your own reports, spreadsheets, and applications. Our TikTok Scraper allows you to scrape:
 
--   Results from TikTok **hashtag search**.
--   **Numbers** of comments and shares, followers and following, total likes.
--   **[NEW]** User profiles and individual posts - by using a URL for a specific profile or video.
+- Results from TikTok  **hashtag search**.
+- **Numbers**  of comments and shares, followers and following, total likes.
+- **Individual posts** and **full user profiles**  - by using a URL for a specific profile or video.
+- The output is limited to maximum **20 results** and **5 comments**. 
+
+## Need more TikTok data? 
+
+Use [TikTok Unlimited Scraper](https://apify.com/sauermar/tiktok-scraper) to use the full potential of scraping TikTok. Scrape TikTok hashtags, numbers of comments and shares, followers and following, user profiles, and individual posts without limitations.
 
 ## Why use TikTok Scraper?
 
-This TikTok Scraper creates an unofficial TikTok API. TikTok now has an [estimated one billion users](https://wallaroomedia.com/blog/social-media/tiktok-statistics/), and many of those users spend as much as 80 minutes per day on the app. With a TikTok API, you can build your own products and applications on top of the TikTok platform.
+This TikTok Scraper creates an unofficial TikTok API. TikTok now has an  [estimated one billion users](https://wallaroomedia.com/blog/social-media/tiktok-statistics/), and many of those users spend as much as 80 minutes per day on the app. With a TikTok API, you can build your own products and applications on top of the TikTok platform.
 
-**How to use the extracted TikTok data:**
-
--   Notice trends and predict emerging influences.
--   Simplify market research for planning advertisement campaigns and hashtag challenges.
--   Prepare for an upcoming marketing campaign: start and promote your own channel or collaborate with an influencer.
--   Scan the market for authentic product reviews and sentiment analysis.
--   Get survey data for research quickly.
--   Get data for social listening experiments.
--   Spread awareness about brands, causes, and social issues.
--   Analyze viral campaigns and trends.
--   Monitor unverified content and inaccurate information with high public value.
 
 ## Cost of usage
 
-If you run TikTok Scraper on the Apify platform, a single run of the actor will take approximately 0.2 CU per 1000 results. It means that, on average, you can extract about **1,000 results for less than 1 USD credit**.
+If you run TikTok Scraper on the Apify platform, a single run of the actor will take approximately 0.2 CU per 1000 results. It means that, on average, you can extract about  **1,000 results for less than 1 USD credit**.
 
-The easiest way to know how many credits your actor will need is to perform a test run. If you're unsure how much credit you've got on your plan, check your limits in the _Settings_ -> _Usage and Billing_ tab in [your Console](https://console.apify.com/).
+The easiest way to know how many credits your actor will need is to perform a test run. If you're unsure how much credit you've got on your plan, check your limits in the  _Settings_  ->  _Usage and Billing_  tab in  [your Console](https://console.apify.com/).
 
 ## Tutorial
 
-For a step-by-step guide on how to scrape TikTok, you can follow our [blog tutorial](https://blog.apify.com/how-to-scrape-tiktok-tutorial/). You can also check out our [industry pages](https://apify.com/industries/) for more ideas on using web scraping data, for instance, to conduct up-to-date market analysis for [retail](https://apify.com/industries/ecommerce-and-retail).
+If you've never done scraping before - worry not; just follow our step-by-step guide on  [how to scrape TikTok](https://blog.apify.com/how-to-scrape-tiktok-tutorial/)  and you'll be up to speed in no time. Or simply follow our quick [video tutorial](https://www.youtube.com/watch?v=uZ0LYBCjvd4) on YouTube:
+
+[![Watch the video here](https://img.youtube.com/vi/uZ0LYBCjvd4/0.jpg)](https://youtu.be/uZ0LYBCjvd4)
+
+
+**How to use the extracted TikTok data:**
+
+-   Boost **brand awareness**; spread the message about social issues and causes.
+- **Forecast upcoming trends** and influences on social media across the new generation. 
+- Get **data for research** and social listening experiments.
+- Get authentic **product reviews**  and back up sentiment analysis with real data.
+- **Plan commercial campaigns** on TikTok or other social media platforms.
+- **Simplify market research** for hashtag challenges and marketing campaigns.
+
 
 ## Input parameters
 
-If this actor is run on the [Apify platform](https://console.apify.com/), our brand new interface will help you to configure all the necessary and optional parameters of this scraper before running it. This scraper recognizes the following input parameters:
+If this actor is run on the  [Apify platform](https://console.apify.com/), our brand new interface will help you to configure all the necessary and optional parameters of this scraper before running it. This scraper recognizes the following input parameters:
 
--   **hashtags** - scrapes TikTok for hashtags. You can duplicate this parameter to scrape several hashtags simultaneously.
--   **profiles** - scrapes TikTok profiles. You can copy this parameter to scrape several profiles simultaneously.
+-   **hashtags**  - scrapes TikTok for hashtags. You can duplicate this parameter to scrape several hashtags simultaneously.
+-   **profiles**  - scrapes TikTok profiles. You can copy this parameter to scrape several profiles simultaneously.
 -   **postURLs**- scrapes specific TikTok posts. You can duplicate this parameter to scrape several posts at the same time.
--   **resultsPerPage** - sets the limit for the amount of scraped results; default is 10.
--   **maxRequestRetries** - indicates the limit of scraper retries in case of any errors.
--   **proxyConfiguration** - sets up the proxies.
+-   **resultsPerPage**  - sets the maximum limit for the amount of scraped results; default is 20. 
+-   **maxRequestRetries**  - indicates the limit of scraper retries in case of any errors.
+-   **proxyConfiguration**  - sets up the proxies.
 
 ### Example
-``{  "resultsPerPage":  200,  
-"proxyConfiguration":  {  
-"useApifyProxy":  true  
-},  
-"hashtags":  [  "comfortfood"  ],
-"maxRequestRetries":  10  
-}``
+
+```javascript
+{  
+    "resultsPerPage":  20,  
+    "proxyConfiguration":  {  
+        "useApifyProxy":  true  
+    },  
+    "hashtags":  ["comfortfood"],
+    "maxRequestRetries":  10  
+}
+
+```
 
 ## Output
 
-The output from TikTok Scraper is stored in a dataset. Each item is information about a video and user or channel. Here's an example of some of the output you would get if you used the input parameters above to scrape the hashtag "comfortfood":
+The output from TikTok Scraper is stored in a dataset. Each item is information about a video and user or channel. Here's an example of some of the output you would get if you used the input parameters above to scrape the hashtag "_comfortfood_":
 
-### Example:
+### Example
 
-``{
+```javascript
+{
   "id": "6885142885939825925",
   "text": "Best Mashed Potatoes! #tiktokcooks #hellofall #comfortfood #homecooking #cookingwithshereen  #fyp",
   "createTime": 1603072290,
@@ -99,24 +109,14 @@ The output from TikTok Scraper is stored in a dataset. Each item is information 
   "downloaded": false,
   "mentions": [],
   "hashtags": [
-    { ```
+    { 
 
-
-## Proxies
-
-TikTok Scraper works well with Apify dataset proxies, which are set as default for all our scrapers. However, if you've noticed your run has been stuck for too long, it's recommended to switch to residential proxies for faster, reliable, and more efficient results.
-
-## Planned features
-
-We're always striving to improve our actors as the demand for their usage grows. Here's what we've got planned for the next update:
-
--   Scrape the most popular **keyword search results** (this feature would be available only when logged in).
--   **Scrape comments** and replies.
+```
 
 ## Personal data
 
-You should be aware that your results might contain personal data. Personal data is protected by GDPR in the European Union and other laws and regulations around the world. You should not scrape personal data unless you have a legitimate reason to do so. If you're unsure whether your reason is legitimate, consult your lawyers. You can read the basics of ethical web scraping in our blogpost on the [legality of web scraping](https://blog.apify.com/is-web-scraping-legal/).
+You should be aware that your results might contain personal data. Personal data is protected by GDPR in the European Union and other laws and regulations around the world. You should not scrape personal data unless you have a legitimate reason to do so. If you're unsure whether your reason is legitimate, consult your lawyers. You can read the basics of ethical web scraping in our blogpost on the  [legality of web scraping](https://blog.apify.com/is-web-scraping-legal/).
 
 ## Your feedback
 
-Currently, TikTok Scraper scrapes information based on hashtags, user profiles, or posts. We will be adding more functionality soon, so feel free to [contact us](mailto:support@apify.com) for any suggestions or improvements.
+Currently, TikTok Free Scraper scrapes information based on hashtags, user profiles, or posts. We will be adding more functionality soon, so feel free to  [contact us](mailto:support@apify.com)  for any suggestions or improvements.
